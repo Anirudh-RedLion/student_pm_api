@@ -1,35 +1,30 @@
-package middleware
+package utils
 
 import (
-	"net/http"
-	"strings"
-	"student_pm_api/utils"
+	"time"
 
-	"github.com/gin-gonic/gin"
+	"github.com/Anirudh-RedLion/student_pm_api/models"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func JWTAuth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		authHeader := c.GetHeader("Authorization")
-		if !strings.HasPrefix(authHeader, "Bearer ") {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Missing or invalid token"})
-			return
-		}
-		tokenStr := strings.TrimPrefix(authHeader, "Bearer ")
-		token, err := utils.ParseJWT(tokenStr)
-		if err != nil || !token.Valid {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-			return
-		}
-		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
-			return
-		}
-		c.Set("user_id", claims["user_id"])
-		c.Set("email", claims["email"])
-		c.Set("role", claims["role"])
-		c.Next()
+var jwtSecret = []byte("your_secret_key")
+
+func GenerateJWT(user models.User) (string, error) {
+	claims := jwt.MapClaims{
+		"user_id": user.ID,
+		"email":   user.Email,
+		"role":    user.Role,
+		"exp":     time.Now().Add(time.Hour * 72).Unix(),
 	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtSecret)
+}
+
+func ParseJWT(tokenStr string) (*jwt.Token, error) {
+	return jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, jwt.ErrSignatureInvalid
+		}
+		return jwtSecret, nil
+	})
 }

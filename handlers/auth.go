@@ -3,9 +3,10 @@ package handlers
 import (
 	"net/http"
 	"strings"
-	"student_pm_api/db"
-	"student_pm_api/models"
-	"student_pm_api/utils"
+
+	"github.com/Anirudh-RedLion/student_pm_api/db"
+	"github.com/Anirudh-RedLion/student_pm_api/models"
+	"github.com/Anirudh-RedLion/student_pm_api/utils"
 
 	"github.com/gin-gonic/gin"
 )

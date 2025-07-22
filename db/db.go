@@ -2,7 +2,8 @@ package db
 
 import (
 	"log"
-	"student_pm_api/models"
+
+	"github.com/Anirudh-RedLion/student_pm_api/models"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -10,9 +11,10 @@ import (
 
 var DB *gorm.DB
 
-func Init() {
+// Init initializes the database connection using the provided dbPath.
+func Init(dbPath string) {
 	var err error
-	DB, err = gorm.Open(sqlite.Open("studentpm.db"), &gorm.Config{})
+	DB, err = gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
 		log.Fatal("failed to connect database: ", err)
 	}
